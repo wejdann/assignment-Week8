@@ -1,0 +1,28 @@
+- name: Build and deploy frontend
+  hosts: all
+  become: true
+  vars:
+    app_src_dir: ../docker-trainer-portal-assignment/ui/
+    app_dest_dir: /tmp/frontendapp
+  tasks:
+    - name: Copy files
+      ansible.builtin.copy:
+        src: "{{ app_src_dir }}/"
+        dest: "{{ app_dest_dir }}/"
+
+    - name: Build image
+      community.docker.docker_image:
+        name: frontendapp
+        build:
+          path: "{{ app_dest_dir }}"
+        source: build
+
+    - name: Run container
+      community.docker.docker_container:
+        name: frontendapp
+        image: frontendapp
+        state: started
+        restart_policy: always
+        ports:
+          - "80:80"
+

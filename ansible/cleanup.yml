@@ -1,0 +1,34 @@
+- name: Cleanup Docker containers and files
+  hosts: all
+  become: true
+  vars:
+    containers:
+      - frontendapp
+      - backendapp
+      - postgres_db
+    images:
+      - frontendapp
+      - backendapp
+      - postgres:latest
+    folders:
+      - /tmp/backendapp
+      - /tmp/frontendapp
+  tasks:
+    - name: Remove containers
+      community.docker.docker_container:
+        name: "{{ item }}"
+        state: absent
+      loop: "{{ containers }}"
+
+    - name: Remove images
+      community.docker.docker_image:
+        name: "{{ item }}"
+        state: absent
+      loop: "{{ images }}"
+
+    - name: Delete folders
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop: "{{ folders }}"
+

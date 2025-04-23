@@ -1,0 +1,28 @@
+- name: Deploy PostgreSQL container
+  hosts: all
+  become: true
+  vars:
+    postgres_password: "postgres"
+    postgres_user: "postgres"
+    postgres_db: "postgresdb"
+  tasks:
+    - name: Pull image
+      community.docker.docker_image:
+        name: postgres:latest
+        source: pull
+
+    - name: Run container
+      community.docker.docker_container:
+        name: postgres_db
+        image: postgres:latest
+        state: started
+        restart_policy: always
+        networks:
+          - name: custom_network
+        ports:
+          - "5432:5432"
+        env:
+          POSTGRES_PASSWORD: "{{ postgres_password }}"
+          POSTGRES_USER: "{{ postgres_user }}"
+          POSTGRES_DB: "{{ postgres_db }}"
+

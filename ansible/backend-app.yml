@@ -1,0 +1,30 @@
+- name: Build and deploy backend
+  hosts: all
+  become: true
+  vars:
+    app_src_dir: ../docker-trainer-portal-assignment/api/
+    app_dest_dir: /tmp/backendapp
+  tasks:
+    - name: Copy files
+      ansible.builtin.copy:
+        src: "{{ app_src_dir }}/"
+        dest: "{{ app_dest_dir }}/"
+
+    - name: Build image
+      community.docker.docker_image:
+        name: backendapp
+        build:
+          path: "{{ app_dest_dir }}"
+        source: build
+
+    - name: Run container
+      community.docker.docker_container:
+        name: backendapp
+        image: backendapp
+        state: started
+        restart_policy: always
+        networks:
+          - name: custom_network
+        ports:
+          - "3000:3000"
+
